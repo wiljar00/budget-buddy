@@ -8,3 +8,5 @@ const Demo = () => {
     </HStack>
   )
 }
+
+export default Demo;
