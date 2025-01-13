@@ -1,13 +1,4 @@
-import {
-  Container,
-  Title,
-  Stack,
-  Paper,
-  Text,
-  Group,
-  Button,
-  ActionIcon,
-} from "@mantine/core";
+import { Container, Title, Stack, Group, Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import ExpenseForm from "./ExpenseForm";
 import { useState, useEffect } from "react";
@@ -17,7 +8,7 @@ import {
   ExpenseEntry,
   deleteExpense,
 } from "../utils/storage";
-import { IconTrash } from "@tabler/icons-react";
+import TransactionItem from "./TransactionItem";
 
 export default function ExpenseList() {
   const [entries, setEntries] = useState<ExpenseEntry[]>([]);
@@ -38,6 +29,13 @@ export default function ExpenseList() {
     setEntries(newEntries);
   };
 
+  const handleEdit = async (index: number, newDescription: string) => {
+    const entries = await loadExpenses();
+    entries[index].description = newDescription;
+    await saveExpenses(entries);
+    setEntries(entries);
+  };
+
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
@@ -50,33 +48,16 @@ export default function ExpenseList() {
         <ExpenseForm onSubmit={handleAddExpense} />
         <Stack gap="md">
           {entries.map((entry, index) => (
-            <Paper
+            <TransactionItem
               key={index}
-              shadow="sm"
-              radius="md"
-              p="md"
-              withBorder
-              bg="red.0"
-            >
-              <Stack gap="xs">
-                <Group justify="space-between">
-                  <Text fw={500}>{entry.description}</Text>
-                  <ActionIcon
-                    color="red"
-                    variant="subtle"
-                    onClick={() => handleDelete(index)}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
-                <Group justify="space-between">
-                  <Text c="dimmed">{entry.date.toLocaleDateString()}</Text>
-                  <Text fw={500} c="red">
-                    ${entry.amount.toFixed(2)}
-                  </Text>
-                </Group>
-              </Stack>
-            </Paper>
+              description={entry.description}
+              amount={entry.amount}
+              date={entry.date}
+              index={index}
+              type="expense"
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+            />
           ))}
         </Stack>
       </Stack>

@@ -3,5 +3,10 @@
     "description": "rent",
     "amount": 200,
     "date": "2025-01-13T23:22:17.511Z"
+  },
+  {
+    "description": "test",
+    "amount": 1,
+    "date": "2025-01-13T23:32:10.795Z"
   }
 ]

@@ -1,14 +1,4 @@
-import {
-  Container,
-  Title,
-  Stack,
-  Paper,
-  Text,
-  Group,
-  Button,
-  ActionIcon,
-  Grid,
-} from "@mantine/core";
+import { Container, Title, Stack, Group, Button, Grid } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
@@ -16,9 +6,11 @@ import {
   loadExpenses,
   deleteIncome,
   deleteExpense,
+  saveIncome,
+  saveExpenses,
 } from "../utils/storage";
-import { IconTrash } from "@tabler/icons-react";
 import FinancialCard from "./FinancialCard";
+import TransactionItem from "./TransactionItem";
 
 interface Transaction {
   type: "income" | "expense";
@@ -93,6 +85,40 @@ export default function TransactionHistory() {
     setTransactions(updatedTransactions);
   };
 
+  const handleEdit = async (
+    type: "income" | "expense",
+    index: number,
+    newDescription: string
+  ) => {
+    if (type === "income") {
+      const incomeEntries = await loadIncome();
+      incomeEntries[index].description = newDescription;
+      await saveIncome(incomeEntries);
+    } else {
+      const expenseEntries = await loadExpenses();
+      expenseEntries[index].description = newDescription;
+      await saveExpenses(expenseEntries);
+    }
+
+    // Reload transactions
+    const incomeEntries = await loadIncome();
+    const expenseEntries = await loadExpenses();
+    const updatedTransactions = [
+      ...incomeEntries.map((entry, idx) => ({
+        type: "income" as const,
+        ...entry,
+        index: idx,
+      })),
+      ...expenseEntries.map((entry, idx) => ({
+        type: "expense" as const,
+        ...entry,
+        index: idx,
+      })),
+    ].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+    setTransactions(updatedTransactions);
+  };
+
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
@@ -135,40 +161,18 @@ export default function TransactionHistory() {
 
         <Stack gap="md">
           {transactions.map((transaction, i) => (
-            <Paper
+            <TransactionItem
               key={i}
-              shadow="sm"
-              radius="md"
-              p="md"
-              withBorder
-              bg={transaction.type === "income" ? "green.0" : "red.0"}
-            >
-              <Stack gap="xs">
-                <Group justify="space-between">
-                  <Text fw={500}>{transaction.description}</Text>
-                  <ActionIcon
-                    color="red"
-                    variant="subtle"
-                    onClick={() =>
-                      handleDelete(transaction.type, transaction.index)
-                    }
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
-                <Group justify="space-between">
-                  <Text c="dimmed">
-                    {transaction.date.toLocaleDateString()}
-                  </Text>
-                  <Text
-                    fw={500}
-                    c={transaction.type === "income" ? "green" : "red"}
-                  >
-                    ${transaction.amount.toFixed(2)}
-                  </Text>
-                </Group>
-              </Stack>
-            </Paper>
+              description={transaction.description}
+              amount={transaction.amount}
+              date={transaction.date}
+              index={transaction.index}
+              type={transaction.type}
+              onDelete={(index) => handleDelete(transaction.type, index)}
+              onEdit={(index, newDescription) =>
+                handleEdit(transaction.type, index, newDescription)
+              }
+            />
           ))}
         </Stack>
       </Stack>
