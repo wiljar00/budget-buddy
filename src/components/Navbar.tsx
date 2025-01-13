@@ -14,11 +14,10 @@ export default function Navbar() {
   return (
     <AppShell.Header
       withBorder
-      bg={dark ? "dark.8" : "white"}
-      style={{ boxShadow: "0 3px 3px rgba(0,0,0,0.1)" }}
+      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}
     >
       <Group h="100%" px="md" justify="space-between">
-        <Title order={1}>Budget Buddy App</Title>
+        <Title order={3}>Budget Buddy</Title>
         <Group>
           <ActionIcon
             variant="subtle"

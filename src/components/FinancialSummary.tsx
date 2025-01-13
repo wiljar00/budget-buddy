@@ -1,9 +1,9 @@
 import { Grid, Container } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
 import FinancialCard from "./FinancialCard";
+import { useNavigate } from "react-router-dom";
 
 export default function FinancialSummary() {
-  const isMobile = useMediaQuery("(max-width: 48em)");
+  const navigate = useNavigate();
 
   return (
     <Container size="md">
@@ -27,12 +27,17 @@ export default function FinancialSummary() {
           />
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6 }}>
-          <FinancialCard
-            title="Income"
-            amount="$4,000.00"
-            description="Total income this month"
-            color="green.7"
-          />
+          <div
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/income")}
+          >
+            <FinancialCard
+              title="Income"
+              amount="$4,000.00"
+              description="Total income this month"
+              color="green.7"
+            />
+          </div>
         </Grid.Col>
       </Grid>
     </Container>
