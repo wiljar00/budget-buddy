@@ -12,7 +12,11 @@ export default function Navbar() {
   const dark = colorScheme === "dark";
 
   return (
-    <AppShell.Header>
+    <AppShell.Header
+      withBorder
+      bg={dark ? "dark.8" : "white"}
+      style={{ boxShadow: "0 3px 3px rgba(0,0,0,0.1)" }}
+    >
       <Group h="100%" px="md" justify="space-between">
         <Title order={1}>Budget Buddy App</Title>
         <Group>
