@@ -3,18 +3,27 @@ import { useEffect, useState } from "react";
 import FinancialCard from "./FinancialCard";
 import { loadIncome, IncomeEntry } from "../utils/storage";
 import { useNavigate } from "react-router-dom";
+import { loadExpenses, ExpenseEntry } from "../utils/storage";
 
 export default function FinancialSummary() {
-  const [entries, setEntries] = useState<IncomeEntry[]>([]);
+  const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([]);
+  const [expenseEntries, setExpenseEntries] = useState<ExpenseEntry[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadIncome().then(setEntries);
+    loadIncome().then(setIncomeEntries);
+    loadExpenses().then(setExpenseEntries);
   }, []);
 
-  const totalIncome = entries.reduce((sum, entry) => sum + entry.amount, 0);
-  const expenses = 2540.0; // TODO: Add expenses functionality
-  const balance = totalIncome - expenses;
+  const totalIncome = incomeEntries.reduce(
+    (sum, entry) => sum + entry.amount,
+    0
+  );
+  const totalExpenses = expenseEntries.reduce(
+    (sum, entry) => sum + entry.amount,
+    0
+  );
+  const balance = totalIncome - totalExpenses;
 
   return (
     <Container size="md">
@@ -30,12 +39,17 @@ export default function FinancialSummary() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 6 }}>
-          <FinancialCard
-            title="Expenses"
-            amount={`$${expenses.toFixed(2)}`}
-            description="Total expenses this month"
-            color="red.7"
-          />
+          <div
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/expenses")}
+          >
+            <FinancialCard
+              title="Expenses"
+              amount={`$${totalExpenses.toFixed(2)}`}
+              description="Total expenses this month"
+              color="red.7"
+            />
+          </div>
         </Grid.Col>
         <Grid.Col span={{ base: 12, md: 6 }}>
           <div

@@ -3,6 +3,7 @@ import FinancialSummary from "./components/FinancialSummary";
 import IncomeList from "./components/IncomeList";
 import Navbar from "./components/Navbar";
 import { AppShell } from "@mantine/core";
+import ExpenseList from "./components/ExpenseList";
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<FinancialSummary />} />
             <Route path="/income" element={<IncomeList />} />
+            <Route path="/expenses" element={<ExpenseList />} />
           </Routes>
         </AppShell.Main>
       </AppShell>

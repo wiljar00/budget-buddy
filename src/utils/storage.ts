@@ -58,4 +58,60 @@ export const loadIncome = async (): Promise<IncomeEntry[]> => {
     console.error('Failed to load income:', error);
     return [];
   }
+};
+
+export interface ExpenseEntry {
+  description: string;
+  amount: number;
+  date: Date;
+}
+
+const EXPENSE_KEY = 'expense_entries';
+
+export const saveExpenses = async (entries: ExpenseEntry[]) => {
+  try {
+    const data = entries.map(entry => ({
+      ...entry,
+      date: entry.date.toISOString()
+    }));
+    localStorage.setItem(EXPENSE_KEY, JSON.stringify(data));
+    await fetch('/api/save-expenses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch (error) {
+    console.error('Failed to save expenses:', error);
+  }
+};
+
+export const loadExpenses = async (): Promise<ExpenseEntry[]> => {
+  try {
+    const fileResponse = await fetch('/api/load-expenses');
+    const fileData = await fileResponse.text();
+    
+    if (!fileData || fileData.trim() === '') {
+      return [];
+    }
+
+    const parsedData = JSON.parse(fileData);
+    if (parsedData.length > 0) {
+      const entries = parsedData.map((entry: any) => ({
+        ...entry,
+        date: new Date(entry.date)
+      }));
+      localStorage.setItem(EXPENSE_KEY, JSON.stringify(parsedData));
+      return entries;
+    }
+
+    const localData = localStorage.getItem(EXPENSE_KEY);
+    if (!localData) return [];
+    return JSON.parse(localData).map((entry: any) => ({
+      ...entry,
+      date: new Date(entry.date)
+    }));
+  } catch (error) {
+    console.error('Failed to load expenses:', error);
+    return [];
+  }
 }; 
