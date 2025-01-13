@@ -29,13 +29,18 @@ export default function FinancialSummary() {
     <Container size="md">
       <Grid gutter="md">
         <Grid.Col span={12}>
-          <FinancialCard
-            title="Balance"
-            amount={`$${balance.toFixed(2)}`}
-            description="Current balance"
-            color="blue.7"
-            isLarge
-          />
+          <div
+            style={{ cursor: "pointer" }}
+            onClick={() => navigate("/transactions")}
+          >
+            <FinancialCard
+              title="Balance"
+              amount={`$${balance.toFixed(2)}`}
+              description="Current balance"
+              color="blue.7"
+              isLarge
+            />
+          </div>
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 6 }}>
