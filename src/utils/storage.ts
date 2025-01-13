@@ -8,11 +8,19 @@ const STORAGE_KEY = 'income_entries';
 
 export const saveIncome = async (entries: IncomeEntry[]) => {
   try {
+    // Save to localStorage
     const data = entries.map(entry => ({
       ...entry,
       date: entry.date.toISOString()
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+    // Save to file
+    await fetch('/api/save-json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
   } catch (error) {
     console.error('Failed to save income:', error);
   }
@@ -20,9 +28,23 @@ export const saveIncome = async (entries: IncomeEntry[]) => {
 
 export const loadIncome = async (): Promise<IncomeEntry[]> => {
   try {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return [];
-    return JSON.parse(data).map((entry: any) => ({
+    // Try loading from file first
+    const fileResponse = await fetch('/api/load-json');
+    const fileData = await fileResponse.json();
+    if (fileData.length > 0) {
+      const entries = fileData.map((entry: any) => ({
+        ...entry,
+        date: new Date(entry.date)
+      }));
+      // Sync localStorage with file data
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(fileData));
+      return entries;
+    }
+
+    // Fallback to localStorage
+    const localData = localStorage.getItem(STORAGE_KEY);
+    if (!localData) return [];
+    return JSON.parse(localData).map((entry: any) => ({
       ...entry,
       date: new Date(entry.date)
     }));
