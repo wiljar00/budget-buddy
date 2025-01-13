@@ -5,24 +5,29 @@ export interface IncomeEntry {
 }
 
 const STORAGE_KEY = 'income_entries';
+const MAX_ENTRIES = 100;
 
 export const saveIncome = async (entries: IncomeEntry[]) => {
   try {
-    // Save to localStorage
+    // Check total entries count
+    const expenseEntries = await loadExpenses();
+    if (entries.length + expenseEntries.length > MAX_ENTRIES) {
+      throw new Error(`Cannot exceed ${MAX_ENTRIES} total entries`);
+    }
+
     const data = entries.map(entry => ({
       ...entry,
       date: entry.date.toISOString()
     }));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-
-    // Save to file
-    await fetch('/api/save-json', {
+    await fetch('/api/save-income', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
   } catch (error) {
     console.error('Failed to save income:', error);
+    throw error; // Re-throw to handle in the UI
   }
 };
 
@@ -70,6 +75,12 @@ const EXPENSE_KEY = 'expense_entries';
 
 export const saveExpenses = async (entries: ExpenseEntry[]) => {
   try {
+    // Check total entries count
+    const incomeEntries = await loadIncome();
+    if (entries.length + incomeEntries.length > MAX_ENTRIES) {
+      throw new Error(`Cannot exceed ${MAX_ENTRIES} total entries`);
+    }
+
     const data = entries.map(entry => ({
       ...entry,
       date: entry.date.toISOString()
@@ -82,6 +93,7 @@ export const saveExpenses = async (entries: ExpenseEntry[]) => {
     });
   } catch (error) {
     console.error('Failed to save expenses:', error);
+    throw error; // Re-throw to handle in the UI
   }
 };
 

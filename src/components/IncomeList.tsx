@@ -19,9 +19,17 @@ export default function IncomeList() {
   }, []);
 
   const handleAddIncome = async (entry: IncomeEntry) => {
-    const newEntries = [...entries, entry];
-    setEntries(newEntries);
-    await saveIncome(newEntries);
+    try {
+      const newEntries = [...entries, entry];
+      await saveIncome(newEntries);
+      setEntries(newEntries);
+    } catch (error) {
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert("An unknown error occurred");
+      }
+    }
   };
 
   const handleDelete = async (index: number) => {
