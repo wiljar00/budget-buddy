@@ -9,20 +9,21 @@ import {
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import IncomeForm from "./IncomeForm";
-import { useState } from "react";
-
-interface IncomeEntry {
-  description: string;
-  amount: number;
-  date: Date;
-}
+import { useState, useEffect } from "react";
+import { loadIncome, saveIncome, IncomeEntry } from "../utils/storage";
 
 export default function IncomeList() {
   const [entries, setEntries] = useState<IncomeEntry[]>([]);
   const navigate = useNavigate();
 
-  const handleAddIncome = (entry: IncomeEntry) => {
-    setEntries([...entries, entry]);
+  useEffect(() => {
+    loadIncome().then(setEntries);
+  }, []);
+
+  const handleAddIncome = async (entry: IncomeEntry) => {
+    const newEntries = [...entries, entry];
+    setEntries(newEntries);
+    await saveIncome(newEntries);
   };
 
   return (
