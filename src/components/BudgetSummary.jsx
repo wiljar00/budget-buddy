@@ -7,7 +7,7 @@ import {
 
 function BudgetSummary() {
   return (
-    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+    <SimpleGrid columns={{ base: 1, md: 3 }} gap={4}> 
       <Box 
         bg="green.50" 
         p={6} 
