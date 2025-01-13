@@ -7,6 +7,7 @@ import {
   Group,
   Button,
   ActionIcon,
+  Grid,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -17,6 +18,7 @@ import {
   deleteExpense,
 } from "../utils/storage";
 import { IconTrash } from "@tabler/icons-react";
+import FinancialCard from "./FinancialCard";
 
 interface Transaction {
   type: "income" | "expense";
@@ -29,6 +31,15 @@ interface Transaction {
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const navigate = useNavigate();
+
+  // Calculate balance
+  const totalIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalExpenses = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const balance = totalIncome - totalExpenses;
 
   useEffect(() => {
     const loadTransactions = async () => {
@@ -85,12 +96,43 @@ export default function TransactionHistory() {
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
-        <Group justify="space-between" align="center">
-          <Title order={2}>Transaction History</Title>
+        <Grid>
+          <Grid.Col span={12}>
+            <FinancialCard
+              title="Current Balance"
+              amount={`$${balance.toFixed(2)}`}
+              description="Current balance"
+              color="blue.7"
+              isLarge
+            />
+          </Grid.Col>
+        </Grid>
+
+        <Group justify="flex-end">
           <Button variant="light" onClick={() => navigate("/")}>
             Back to Dashboard
           </Button>
         </Group>
+
+        <Group justify="center" gap="md">
+          <Button
+            variant="light"
+            color="green"
+            onClick={() => navigate("/income")}
+          >
+            Add Income
+          </Button>
+          <Button
+            variant="light"
+            color="red"
+            onClick={() => navigate("/expenses")}
+          >
+            Add Expense
+          </Button>
+        </Group>
+
+        <Title order={2}>Transaction History</Title>
+
         <Stack gap="md">
           {transactions.map((transaction, i) => (
             <Paper

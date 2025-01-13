@@ -3,5 +3,10 @@
     "description": "test2",
     "amount": 1000,
     "date": "2025-01-13T23:13:14.591Z"
+  },
+  {
+    "description": "paycheck",
+    "amount": 2000,
+    "date": "2025-01-13T23:30:17.654Z"
   }
 ]

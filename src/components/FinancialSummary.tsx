@@ -34,7 +34,7 @@ export default function FinancialSummary() {
             onClick={() => navigate("/transactions")}
           >
             <FinancialCard
-              title="Balance"
+              title="Current Balance"
               amount={`$${balance.toFixed(2)}`}
               description="Current balance"
               color="blue.7"
