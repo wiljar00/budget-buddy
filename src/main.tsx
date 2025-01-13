@@ -23,6 +23,7 @@ createRoot(document.getElementById("root")!).render(
           ],
         },
       }}
+      defaultColorScheme="light"
     >
       <App />
     </MantineProvider>
