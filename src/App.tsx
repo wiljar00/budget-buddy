@@ -4,6 +4,7 @@ import IncomeList from "./components/IncomeList";
 import Navbar from "./components/Navbar";
 import { AppShell, Text, Center } from "@mantine/core";
 import ExpenseList from "./components/ExpenseList";
+import Footer from "./components/Footer";
 
 export default function App() {
   return (
@@ -18,11 +19,7 @@ export default function App() {
           </Routes>
         </AppShell.Main>
         <AppShell.Footer>
-          <Center h="100%">
-            <Text size="sm" c="dimmed">
-              Made with ❤️ by Jarom Wilcox - https://github.com/wiljar00
-            </Text>
-          </Center>
+          <Footer />
         </AppShell.Footer>
       </AppShell>
     </BrowserRouter>
