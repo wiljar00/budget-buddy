@@ -18,7 +18,9 @@ export default defineConfig({
             req.on('data', chunk => { body += chunk })
             req.on('end', async () => {
               try {
-                await fs.writeFile(dataFile, body)
+                const jsonData = JSON.parse(body)
+                const prettyJson = JSON.stringify(jsonData, null, 2)
+                await fs.writeFile(dataFile, prettyJson)
                 res.writeHead(200, { 'Content-Type': 'application/json' })
                 res.end(JSON.stringify({ success: true }))
               } catch (error) {

@@ -1,1 +1,7 @@
-[{"description":"testing","amount":1000,"date":"2025-01-10T22:46:10.677Z"}]
+[
+  {
+    "description": "test",
+    "amount": 100,
+    "date": "2025-01-03T22:48:31.134Z"
+  }
+]

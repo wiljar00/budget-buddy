@@ -30,14 +30,20 @@ export const loadIncome = async (): Promise<IncomeEntry[]> => {
   try {
     // Try loading from file first
     const fileResponse = await fetch('/api/load-json');
-    const fileData = await fileResponse.json();
-    if (fileData.length > 0) {
-      const entries = fileData.map((entry: any) => ({
+    const fileData = await fileResponse.text(); // Get raw text first
+    
+    // Handle empty or invalid JSON
+    if (!fileData || fileData.trim() === '') {
+      return [];
+    }
+
+    const parsedData = JSON.parse(fileData);
+    if (parsedData.length > 0) {
+      const entries = parsedData.map((entry: any) => ({
         ...entry,
         date: new Date(entry.date)
       }));
-      // Sync localStorage with file data
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(fileData));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
       return entries;
     }
 
