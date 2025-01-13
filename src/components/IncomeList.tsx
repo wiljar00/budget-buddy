@@ -1,5 +1,15 @@
-import { Container, Title, Stack, Paper, Text, Group } from "@mantine/core";
+import {
+  Container,
+  Title,
+  Stack,
+  Paper,
+  Text,
+  Group,
+  Button,
+} from "@mantine/core";
+import { useNavigate } from "react-router-dom";
 import IncomeForm from "./IncomeForm";
+import { useState } from "react";
 
 interface IncomeEntry {
   description: string;
@@ -9,6 +19,7 @@ interface IncomeEntry {
 
 export default function IncomeList() {
   const [entries, setEntries] = useState<IncomeEntry[]>([]);
+  const navigate = useNavigate();
 
   const handleAddIncome = (entry: IncomeEntry) => {
     setEntries([...entries, entry]);
@@ -17,9 +28,13 @@ export default function IncomeList() {
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
-        <Title order={2}>Income Entries</Title>
+        <Group justify="space-between" align="center">
+          <Title order={2}>Income Entries</Title>
+          <Button variant="light" onClick={() => navigate("/")}>
+            Back to Dashboard
+          </Button>
+        </Group>
         <IncomeForm onSubmit={handleAddIncome} />
-
         <Stack gap="md">
           {entries.map((entry, index) => (
             <Paper key={index} shadow="sm" radius="md" p="md" withBorder>
