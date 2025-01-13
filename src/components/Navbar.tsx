@@ -5,7 +5,7 @@ export default function Navbar() {
   return (
     <AppShell.Header>
       <Group h="100%" px="md" justify="space-between">
-        <Title order={1}>Norway Fjord Adventures</Title>
+        <Title order={1}>Budget Buddy App</Title>
         <ActionIcon variant="subtle" size="lg">
           <IconUser />
         </ActionIcon>
