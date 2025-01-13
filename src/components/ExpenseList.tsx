@@ -50,7 +50,14 @@ export default function ExpenseList() {
         <ExpenseForm onSubmit={handleAddExpense} />
         <Stack gap="md">
           {entries.map((entry, index) => (
-            <Paper key={index} shadow="sm" radius="md" p="md" withBorder>
+            <Paper
+              key={index}
+              shadow="sm"
+              radius="md"
+              p="md"
+              withBorder
+              bg="red.0"
+            >
               <Stack gap="xs">
                 <Group justify="space-between">
                   <Text fw={500}>{entry.description}</Text>
