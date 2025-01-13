@@ -2,13 +2,13 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import FinancialSummary from "./components/FinancialSummary";
 import IncomeList from "./components/IncomeList";
 import Navbar from "./components/Navbar";
-import { AppShell } from "@mantine/core";
+import { AppShell, Text, Center } from "@mantine/core";
 import ExpenseList from "./components/ExpenseList";
 
 export default function App() {
   return (
     <BrowserRouter>
-      <AppShell header={{ height: 60 }} padding="md">
+      <AppShell header={{ height: 60 }} padding="md" footer={{ height: 40 }}>
         <Navbar />
         <AppShell.Main>
           <Routes>
@@ -17,6 +17,13 @@ export default function App() {
             <Route path="/expenses" element={<ExpenseList />} />
           </Routes>
         </AppShell.Main>
+        <AppShell.Footer>
+          <Center h="100%">
+            <Text size="sm" c="dimmed">
+              Made with ❤️ by Jarom Wilcox - https://github.com/wiljar00
+            </Text>
+          </Center>
+        </AppShell.Footer>
       </AppShell>
     </BrowserRouter>
   );
