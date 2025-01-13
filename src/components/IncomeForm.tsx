@@ -62,7 +62,13 @@ export default function IncomeForm({ onSubmit }: IncomeFormProps) {
             label="Date"
             placeholder="Pick a date"
             required
+            valueFormat="MMMM D, YYYY"
+            defaultValue={new Date()}
+            hideOutsideDates
             {...form.getInputProps("date")}
+            styles={{
+              calendarHeader: { display: "none" },
+            }}
           />
 
           <Group justify="flex-end" mt="md">
