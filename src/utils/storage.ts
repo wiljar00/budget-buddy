@@ -114,4 +114,37 @@ export const loadExpenses = async (): Promise<ExpenseEntry[]> => {
     console.error('Failed to load expenses:', error);
     return [];
   }
+};
+
+// Add delete functions
+export const deleteIncome = async (index: number, entries: IncomeEntry[]) => {
+  try {
+    const newEntries = entries.filter((_, i) => i !== index);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newEntries));
+    await fetch('/api/save-json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newEntries)
+    });
+    return newEntries;
+  } catch (error) {
+    console.error('Failed to delete income:', error);
+    return entries;
+  }
+};
+
+export const deleteExpense = async (index: number, entries: ExpenseEntry[]) => {
+  try {
+    const newEntries = entries.filter((_, i) => i !== index);
+    localStorage.setItem(EXPENSE_KEY, JSON.stringify(newEntries));
+    await fetch('/api/save-expenses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newEntries)
+    });
+    return newEntries;
+  } catch (error) {
+    console.error('Failed to delete expense:', error);
+    return entries;
+  }
 }; 

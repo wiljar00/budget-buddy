@@ -6,11 +6,18 @@ import {
   Text,
   Group,
   Button,
+  ActionIcon,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import IncomeForm from "./IncomeForm";
 import { useState, useEffect } from "react";
-import { loadIncome, saveIncome, IncomeEntry } from "../utils/storage";
+import {
+  loadIncome,
+  saveIncome,
+  IncomeEntry,
+  deleteIncome,
+} from "../utils/storage";
+import { IconTrash } from "@tabler/icons-react";
 
 export default function IncomeList() {
   const [entries, setEntries] = useState<IncomeEntry[]>([]);
@@ -24,6 +31,11 @@ export default function IncomeList() {
     const newEntries = [...entries, entry];
     setEntries(newEntries);
     await saveIncome(newEntries);
+  };
+
+  const handleDelete = async (index: number) => {
+    const newEntries = await deleteIncome(index, entries);
+    setEntries(newEntries);
   };
 
   return (
@@ -40,7 +52,16 @@ export default function IncomeList() {
           {entries.map((entry, index) => (
             <Paper key={index} shadow="sm" radius="md" p="md" withBorder>
               <Stack gap="xs">
-                <Text fw={500}>{entry.description}</Text>
+                <Group justify="space-between">
+                  <Text fw={500}>{entry.description}</Text>
+                  <ActionIcon
+                    color="red"
+                    variant="subtle"
+                    onClick={() => handleDelete(index)}
+                  >
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                </Group>
                 <Group justify="space-between">
                   <Text c="dimmed">{entry.date.toLocaleDateString()}</Text>
                   <Text fw={500} c="green">

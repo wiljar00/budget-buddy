@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import FinancialSummary from "./components/FinancialSummary";
 import IncomeList from "./components/IncomeList";
 import Navbar from "./components/Navbar";
-import { AppShell, Text, Center } from "@mantine/core";
+import { AppShell } from "@mantine/core";
 import ExpenseList from "./components/ExpenseList";
 import Footer from "./components/Footer";
 

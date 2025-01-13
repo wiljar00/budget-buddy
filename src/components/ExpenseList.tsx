@@ -6,11 +6,18 @@ import {
   Text,
   Group,
   Button,
+  ActionIcon,
 } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import ExpenseForm from "./ExpenseForm";
 import { useState, useEffect } from "react";
-import { loadExpenses, saveExpenses, ExpenseEntry } from "../utils/storage";
+import {
+  loadExpenses,
+  saveExpenses,
+  ExpenseEntry,
+  deleteExpense,
+} from "../utils/storage";
+import { IconTrash } from "@tabler/icons-react";
 
 export default function ExpenseList() {
   const [entries, setEntries] = useState<ExpenseEntry[]>([]);
@@ -24,6 +31,11 @@ export default function ExpenseList() {
     const newEntries = [...entries, entry];
     setEntries(newEntries);
     await saveExpenses(newEntries);
+  };
+
+  const handleDelete = async (index: number) => {
+    const newEntries = await deleteExpense(index, entries);
+    setEntries(newEntries);
   };
 
   return (
@@ -40,7 +52,16 @@ export default function ExpenseList() {
           {entries.map((entry, index) => (
             <Paper key={index} shadow="sm" radius="md" p="md" withBorder>
               <Stack gap="xs">
-                <Text fw={500}>{entry.description}</Text>
+                <Group justify="space-between">
+                  <Text fw={500}>{entry.description}</Text>
+                  <ActionIcon
+                    color="red"
+                    variant="subtle"
+                    onClick={() => handleDelete(index)}
+                  >
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                </Group>
                 <Group justify="space-between">
                   <Text c="dimmed">{entry.date.toLocaleDateString()}</Text>
                   <Text fw={500} c="red">
