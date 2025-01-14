@@ -1,28 +1,52 @@
-import { Grid, Container } from "@mantine/core";
+import { Grid, Container, Accordion, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 import FinancialCard from "./FinancialCard";
-import { loadIncome, IncomeEntry } from "../utils/storage";
+import { loadIncome } from "../utils/storage";
 import { useNavigate } from "react-router-dom";
-import { loadExpenses, ExpenseEntry } from "../utils/storage";
+import { loadExpenses } from "../utils/storage";
+
+interface Transaction {
+  type: "income" | "expense";
+  description: string;
+  amount: number;
+  date: Date;
+  index: number;
+}
 
 export default function FinancialSummary() {
-  const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([]);
-  const [expenseEntries, setExpenseEntries] = useState<ExpenseEntry[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadIncome().then(setIncomeEntries);
-    loadExpenses().then(setExpenseEntries);
+    const loadTransactions = async () => {
+      const incomeEntries = await loadIncome();
+      const expenseEntries = await loadExpenses();
+
+      const allTransactions = [
+        ...incomeEntries.map((entry, index) => ({
+          type: "income" as const,
+          ...entry,
+          index,
+        })),
+        ...expenseEntries.map((entry, index) => ({
+          type: "expense" as const,
+          ...entry,
+          index,
+        })),
+      ].sort((a, b) => b.date.getTime() - a.date.getTime());
+
+      setTransactions(allTransactions);
+    };
+
+    loadTransactions();
   }, []);
 
-  const totalIncome = incomeEntries.reduce(
-    (sum, entry) => sum + entry.amount,
-    0
-  );
-  const totalExpenses = expenseEntries.reduce(
-    (sum, entry) => sum + entry.amount,
-    0
-  );
+  const totalIncome = transactions
+    .filter((t) => t.type === "income")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalExpenses = transactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
   const balance = totalIncome - totalExpenses;
 
   return (
@@ -70,6 +94,50 @@ export default function FinancialSummary() {
           </div>
         </Grid.Col>
       </Grid>
+
+      <Accordion mt="xl">
+        <Accordion.Item value="recent-transactions">
+          <Accordion.Control>Recent Transactions</Accordion.Control>
+          <Accordion.Panel>
+            {transactions.slice(0, 5).map((transaction, i) => (
+              <Grid
+                key={i}
+                p="xs"
+                bg={transaction.type === "income" ? "green.0" : "red.0"}
+              >
+                <Grid.Col span={6}>
+                  <Text fw={500}>{transaction.description}</Text>
+                </Grid.Col>
+                <Grid.Col span={3}>
+                  <Text c="dimmed">
+                    {transaction.date.toLocaleDateString()}
+                  </Text>
+                </Grid.Col>
+                <Grid.Col span={3}>
+                  <Text
+                    fw={500}
+                    c={transaction.type === "income" ? "green" : "red"}
+                    ta="right"
+                  >
+                    ${transaction.amount.toFixed(2)}
+                  </Text>
+                </Grid.Col>
+              </Grid>
+            ))}
+            {transactions.length > 5 && (
+              <Text
+                mt="md"
+                ta="center"
+                c="blue"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/transactions")}
+              >
+                View all transactions →
+              </Text>
+            )}
+          </Accordion.Panel>
+        </Accordion.Item>
+      </Accordion>
     </Container>
   );
 }
