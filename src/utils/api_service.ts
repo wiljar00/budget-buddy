@@ -4,17 +4,23 @@ export async function saveIncomeToMongo(entries: IncomeEntry[]) {
   const response = await fetch('http://localhost:3000/api/income', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(entries)
+    body: JSON.stringify(entries.map(entry => ({
+      ...entry,
+      date: entry.date.toISOString() // Convert Date to string for MongoDB
+    })))
   });
-  return response.json();
+  const data = await response.json();
+  if (!data.success) throw new Error(data.error);
+  return data;
 }
 
 export async function loadIncomeFromMongo(): Promise<IncomeEntry[]> {
   const response = await fetch('http://localhost:3000/api/income');
   const data = await response.json();
-  return data.map((entry: any) => ({
+  if (!Array.isArray(data)) throw new Error('Invalid response format');
+  return data.map(entry => ({
     description: entry.description,
-    amount: entry.amount,
+    amount: Number(entry.amount),
     date: new Date(entry.date)
   }));
 }
@@ -23,17 +29,23 @@ export async function saveExpensesToMongo(entries: ExpenseEntry[]) {
   const response = await fetch('http://localhost:3000/api/expenses', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(entries)
+    body: JSON.stringify(entries.map(entry => ({
+      ...entry,
+      date: entry.date.toISOString() // Convert Date to string for MongoDB
+    })))
   });
-  return response.json();
+  const data = await response.json();
+  if (!data.success) throw new Error(data.error);
+  return data;
 }
 
 export async function loadExpensesFromMongo(): Promise<ExpenseEntry[]> {
   const response = await fetch('http://localhost:3000/api/expenses');
   const data = await response.json();
-  return data.map((entry: any) => ({
+  if (!Array.isArray(data)) throw new Error('Invalid response format');
+  return data.map(entry => ({
     description: entry.description,
-    amount: entry.amount,
+    amount: Number(entry.amount),
     date: new Date(entry.date)
   }));
 }

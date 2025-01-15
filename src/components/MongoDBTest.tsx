@@ -1,4 +1,12 @@
-import { Button, Container, Paper, Text, Stack, Code } from "@mantine/core";
+import {
+  Button,
+  Container,
+  Paper,
+  Text,
+  Stack,
+  Code,
+  Group,
+} from "@mantine/core";
 import { useState } from "react";
 
 export default function MongoDBTest() {
@@ -46,9 +54,56 @@ export default function MongoDBTest() {
           <Text size="xl" fw={500}>
             MongoDB Connection Test
           </Text>
-          <Button onClick={handleTest} loading={isLoading} color="blue">
-            Test Connection
-          </Button>
+          <Group>
+            <Button onClick={handleTest} loading={isLoading} color="blue">
+              Test Connection
+            </Button>
+            <Button
+              onClick={async () => {
+                setIsLoading(true);
+                setErrorDetails("");
+
+                // Log request details
+                const requestInfo = {
+                  url: "http://localhost:3000/api/test-data",
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  timestamp: new Date().toISOString(),
+                };
+                setRequestDetails(JSON.stringify(requestInfo, null, 2));
+
+                try {
+                  const response = await fetch(
+                    "http://localhost:3000/api/test-data",
+                    {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                    }
+                  );
+                  const data = await response.json();
+                  setTestResult(
+                    response.ok
+                      ? "Test data added successfully! ✅"
+                      : "Failed to add test data ❌"
+                  );
+                  setErrorDetails(JSON.stringify(data, null, 2));
+                } catch (error) {
+                  setTestResult("Failed to add test data ❌");
+                  setErrorDetails(
+                    error instanceof Error
+                      ? `${error.name}: ${error.message}`
+                      : "Failed to add test data"
+                  );
+                } finally {
+                  setIsLoading(false);
+                }
+              }}
+              loading={isLoading}
+              color="green"
+            >
+              Add Test Data
+            </Button>
+          </Group>
 
           {requestDetails && (
             <Paper withBorder p="xs" bg="blue.0">
