@@ -1,9 +1,12 @@
 import { Menu, ActionIcon, Text } from "@mantine/core";
-import { IconUser, IconLogout } from "@tabler/icons-react";
+import { IconUser, IconLogout, IconSun, IconMoon } from "@tabler/icons-react";
 import { useAuth } from "../context/AuthContext";
+import { useMantineColorScheme } from "@mantine/core";
 
 export default function UserMenu() {
   const { user, logout } = useAuth();
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const dark = colorScheme === "dark";
 
   return (
     <Menu shadow="md" width={200} position="bottom-end">
@@ -19,6 +22,13 @@ export default function UserMenu() {
           <Text size="sm" fw={500}>
             {user?.email}
           </Text>
+        </Menu.Item>
+
+        <Menu.Item
+          leftSection={dark ? <IconSun size={14} /> : <IconMoon size={14} />}
+          onClick={() => toggleColorScheme()}
+        >
+          {dark ? "Light mode" : "Dark mode"}
         </Menu.Item>
 
         <Menu.Divider />
