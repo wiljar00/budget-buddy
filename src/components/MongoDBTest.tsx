@@ -5,11 +5,22 @@ import { testMongoConnection } from "../utils/api_service";
 export default function MongoDBTest() {
   const [testResult, setTestResult] = useState<string>("");
   const [errorDetails, setErrorDetails] = useState<string>("");
+  const [requestDetails, setRequestDetails] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleTest = async () => {
     setIsLoading(true);
     setErrorDetails("");
+    const requestInfo = {
+      url: "http://localhost:3000/api/test-connection",
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      timestamp: new Date().toISOString(),
+    };
+    setRequestDetails(JSON.stringify(requestInfo, null, 2));
+
     try {
       const success = await testMongoConnection();
       setTestResult(
@@ -40,6 +51,16 @@ export default function MongoDBTest() {
           <Button onClick={handleTest} loading={isLoading} color="blue">
             Test Connection
           </Button>
+
+          {requestDetails && (
+            <Paper withBorder p="xs" bg="blue.0">
+              <Text size="sm" fw={500} mb={5}>
+                Request Details:
+              </Text>
+              <Code block>{requestDetails}</Code>
+            </Paper>
+          )}
+
           {testResult && (
             <Text
               c={testResult.includes("successful") ? "green" : "red"}
@@ -48,10 +69,11 @@ export default function MongoDBTest() {
               {testResult}
             </Text>
           )}
+
           {errorDetails && (
             <Paper withBorder p="xs" bg="red.1">
               <Text size="sm" fw={500} mb={5}>
-                Error Details:
+                Response Details:
               </Text>
               <Code block>{errorDetails}</Code>
             </Paper>

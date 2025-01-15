@@ -39,12 +39,10 @@ export async function loadExpensesFromMongo(): Promise<ExpenseEntry[]> {
 }
 
 export async function testMongoConnection() {
-  try {
-    const response = await fetch('http://localhost:3000/api/test-connection');
-    const data = await response.json();
-    return data.success;
-  } catch (error) {
-    console.error('Connection failed:', error);
-    return false;
+  const response = await fetch('http://localhost:3000/api/test-connection');
+  const data = await response.json();
+  if (!data.success) {
+    throw new Error(`${data.name}: ${data.error}\n${data.stack}`);
   }
+  return data.success;
 } 

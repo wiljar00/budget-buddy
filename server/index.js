@@ -15,9 +15,25 @@ app.get("/api/test-connection", async (req, res) => {
   try {
     await client.connect();
     await client.db("budget-buddy").command({ ping: 1 });
-    res.json({ success: true });
+    res.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      database: "budget-buddy",
+      collections: ["income", "expenses"],
+    });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack,
+      name: error.name,
+      timestamp: new Date().toISOString(),
+      details: {
+        code: error.code,
+        codeName: error.codeName,
+        connectionId: error.connectionId,
+      },
+    });
   } finally {
     await client.close();
   }
