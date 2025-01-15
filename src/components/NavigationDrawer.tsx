@@ -47,6 +47,17 @@ export default function NavigationDrawer({
         >
           Transactions
         </Button>
+        <Button
+          variant="subtle"
+          color="gray"
+          onClick={() => {
+            navigate("/mongodb-test");
+            onClose();
+          }}
+          fullWidth
+        >
+          MongoDB Test
+        </Button>
       </Stack>
     </Drawer>
   );

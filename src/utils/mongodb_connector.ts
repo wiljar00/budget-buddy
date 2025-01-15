@@ -9,17 +9,29 @@ interface MongoDBConnector {
 const uri = import.meta.env.VITE_MONGODB_URI;
 const dbName = 'budget-buddy';
 
-export async function connectToMongoDB(): Promise<MongoDBConnector> {
-  const client = new MongoClient(uri);
-  await client.connect();
-  
-  const db = client.db(dbName);
-  const incomeCollection = db.collection('income');
-  const expenseCollection = db.collection('expenses');
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  forceServerObjectId: true,
+  monitorCommands: true,
+};
 
-  return {
-    client,
-    incomeCollection,
-    expenseCollection
-  };
+export async function connectToMongoDB(): Promise<MongoDBConnector> {
+  const client = new MongoClient(uri, options);
+  
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const incomeCollection = db.collection('income');
+    const expenseCollection = db.collection('expenses');
+
+    return {
+      client,
+      incomeCollection,
+      expenseCollection
+    };
+  } catch (error) {
+    await client.close();
+    throw error;
+  }
 } 

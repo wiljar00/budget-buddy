@@ -2,69 +2,50 @@ import { connectToMongoDB } from './mongodb_connector';
 import { IncomeEntry, ExpenseEntry } from './storage';
 
 export async function saveIncomeToMongo(entries: IncomeEntry[]) {
-  const { client, incomeCollection } = await connectToMongoDB();
-  try {
-    await incomeCollection.deleteMany({});
-    await incomeCollection.insertMany(entries);
-  } finally {
-    await client.close();
-  }
+  const response = await fetch('http://localhost:3000/api/income', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entries)
+  });
+  return response.json();
 }
 
 export async function loadIncomeFromMongo(): Promise<IncomeEntry[]> {
-  const { client, incomeCollection } = await connectToMongoDB();
-  try {
-    const entries = await incomeCollection.find().toArray();
-    return entries.map(entry => ({
-      description: entry.description,
-      amount: entry.amount,
-      date: new Date(entry.date)
-    }));
-  } finally {
-    await client.close();
-  }
+  const response = await fetch('http://localhost:3000/api/income');
+  const data = await response.json();
+  return data.map((entry: any) => ({
+    description: entry.description,
+    amount: entry.amount,
+    date: new Date(entry.date)
+  }));
 }
 
 export async function saveExpensesToMongo(entries: ExpenseEntry[]) {
-  const { client, expenseCollection } = await connectToMongoDB();
-  try {
-    await expenseCollection.deleteMany({});
-    await expenseCollection.insertMany(entries);
-  } finally {
-    await client.close();
-  }
+  const response = await fetch('http://localhost:3000/api/expenses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(entries)
+  });
+  return response.json();
 }
 
 export async function loadExpensesFromMongo(): Promise<ExpenseEntry[]> {
-  const { client, expenseCollection } = await connectToMongoDB();
-  try {
-    const entries = await expenseCollection.find().toArray();
-    return entries.map(entry => ({
-      description: entry.description,
-      amount: entry.amount,
-      date: new Date(entry.date)
-    }));
-  } finally {
-    await client.close();
-  }
+  const response = await fetch('http://localhost:3000/api/expenses');
+  const data = await response.json();
+  return data.map((entry: any) => ({
+    description: entry.description,
+    amount: entry.amount,
+    date: new Date(entry.date)
+  }));
 }
 
 export async function testMongoConnection() {
-  const { client, incomeCollection } = await connectToMongoDB();
   try {
-    // Try to insert and then delete a test document
-    await incomeCollection.insertOne({
-      description: "Test Entry",
-      amount: 0,
-      date: new Date()
-    });
-    await incomeCollection.deleteOne({ description: "Test Entry" });
-    console.log("MongoDB connection successful!");
-    return true;
+    const response = await fetch('http://localhost:3000/api/test-connection');
+    const data = await response.json();
+    return data.success;
   } catch (error) {
-    console.error("MongoDB connection failed:", error);
+    console.error('Connection failed:', error);
     return false;
-  } finally {
-    await client.close();
   }
 } 
