@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { login as apiLogin } from "../utils/api_service";
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -14,24 +15,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const auth = localStorage.getItem("isAuthenticated");
-    setIsAuthenticated(auth === "true");
+    const token = localStorage.getItem("token");
+    setIsAuthenticated(!!token);
   }, []);
 
   const login = async (email: string, password: string) => {
-    // TODO: Replace with actual authentication
-    if (email === "test@example.com" && password === "password") {
+    try {
+      await apiLogin(email, password);
       setIsAuthenticated(true);
-      localStorage.setItem("isAuthenticated", "true");
       navigate("/");
-    } else {
-      throw new Error("Invalid credentials");
+    } catch (error) {
+      throw error;
     }
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("token");
     navigate("/login");
   };
 

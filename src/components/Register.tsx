@@ -12,31 +12,37 @@ import {
 import { useForm } from "@mantine/form";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { register } from "../utils/api_service";
 
-export default function Login() {
+export default function Register() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const { login } = useAuth();
 
   const form = useForm({
     initialValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
       password: (value) =>
         value.length < 6 ? "Password must be at least 6 characters" : null,
+      confirmPassword: (value, values) =>
+        value !== values.password ? "Passwords do not match" : null,
     },
   });
 
   const handleSubmit = form.onSubmit(async (values) => {
     try {
-      await login(values.email, values.password);
-      navigate("/");
+      await register(values.email, values.password);
+      navigate("/login");
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Invalid credentials");
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Registration failed. Please try again.");
+      }
     }
   });
 
@@ -44,7 +50,7 @@ export default function Login() {
     <Container size="xs" mt={100}>
       <Paper radius="md" p="xl" withBorder>
         <Title order={2} ta="center" mb="lg">
-          Welcome to Budget Buddy
+          Create an Account
         </Title>
 
         <form onSubmit={handleSubmit}>
@@ -63,6 +69,13 @@ export default function Login() {
               {...form.getInputProps("password")}
             />
 
+            <PasswordInput
+              required
+              label="Confirm Password"
+              placeholder="Confirm your password"
+              {...form.getInputProps("confirmPassword")}
+            />
+
             {error && (
               <Text c="red" size="sm">
                 {error}
@@ -70,14 +83,14 @@ export default function Login() {
             )}
 
             <Button type="submit" fullWidth>
-              Sign in
+              Register
             </Button>
 
             <Group justify="center">
               <Text size="sm">
-                Don't have an account?{" "}
-                <Link to="/register" style={{ textDecoration: "none" }}>
-                  Register
+                Already have an account?{" "}
+                <Link to="/login" style={{ textDecoration: "none" }}>
+                  Login
                 </Link>
               </Text>
             </Group>

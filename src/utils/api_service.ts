@@ -1,53 +1,93 @@
 import { IncomeEntry, ExpenseEntry } from './storage';
 
-export async function saveIncomeToMongo(entries: IncomeEntry[]) {
-  const response = await fetch('http://localhost:3000/api/income', {
+const API_BASE_URL = 'http://localhost:3000/api';
+
+export async function login(email: string, password: string) {
+  const response = await fetch(`${API_BASE_URL}/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(entries.map(entry => ({
-      ...entry,
-      date: entry.date.toISOString() // Convert Date to string for MongoDB
-    })))
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email, password }),
   });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error);
+  }
+
   const data = await response.json();
-  if (!data.success) throw new Error(data.error);
+  localStorage.setItem('token', data.token);
   return data;
 }
 
-export async function loadIncomeFromMongo(): Promise<IncomeEntry[]> {
-  const response = await fetch('http://localhost:3000/api/income');
-  const data = await response.json();
-  if (!Array.isArray(data)) throw new Error('Invalid response format');
-  return data.map(entry => ({
-    description: entry.description,
-    amount: Number(entry.amount),
-    date: new Date(entry.date)
-  }));
+export async function register(email: string, password: string) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    // If we get HTML instead of JSON, it means we hit the wrong endpoint
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('text/html')) {
+      throw new Error('Server endpoint not found');
+    }
+
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Registration failed');
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
+}
+
+function getAuthHeaders() {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  };
+}
+
+export async function saveIncomeToMongo(entries: IncomeEntry[]) {
+  const response = await fetch(`${API_BASE_URL}/income`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify(entries),
+  });
+  return response.json();
+}
+
+export async function loadIncomeFromMongo() {
+  const response = await fetch(`${API_BASE_URL}/income`, {
+    headers: getAuthHeaders(),
+  });
+  return response.json();
 }
 
 export async function saveExpensesToMongo(entries: ExpenseEntry[]) {
-  const response = await fetch('http://localhost:3000/api/expenses', {
+  const response = await fetch(`${API_BASE_URL}/expenses`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(entries.map(entry => ({
-      ...entry,
-      date: entry.date.toISOString() // Convert Date to string for MongoDB
-    })))
+    headers: getAuthHeaders(),
+    body: JSON.stringify(entries),
   });
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error);
-  return data;
+  return response.json();
 }
 
-export async function loadExpensesFromMongo(): Promise<ExpenseEntry[]> {
-  const response = await fetch('http://localhost:3000/api/expenses');
-  const data = await response.json();
-  if (!Array.isArray(data)) throw new Error('Invalid response format');
-  return data.map(entry => ({
-    description: entry.description,
-    amount: Number(entry.amount),
-    date: new Date(entry.date)
-  }));
+export async function loadExpensesFromMongo() {
+  const response = await fetch(`${API_BASE_URL}/expenses`, {
+    headers: getAuthHeaders(),
+  });
+  return response.json();
 }
 
 export async function testMongoConnection() {
