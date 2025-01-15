@@ -17,7 +17,11 @@ interface TransactionItemProps {
   index: number;
   type: "income" | "expense";
   onDelete: (index: number) => void;
-  onEdit: (index: number, newDescription: string) => void;
+  onEdit: (
+    type: "income" | "expense",
+    index: number,
+    newDescription: string
+  ) => void;
 }
 
 export default function TransactionItem({
@@ -42,7 +46,7 @@ export default function TransactionItem({
 
   const handleEdit = (newDescription: string) => {
     if (newDescription.trim()) {
-      onEdit(index, newDescription);
+      onEdit(type, index, newDescription);
     }
     setIsEditing(false);
     setEditingDescription(description);

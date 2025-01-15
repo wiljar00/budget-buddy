@@ -1,4 +1,4 @@
-import { Container, Title, Stack, Group, Button, Grid } from "@mantine/core";
+import { Container, Stack, Group, Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../utils/storage";
 import FinancialCard from "./FinancialCard";
 import TransactionItem from "./TransactionItem";
+import PageHeader from "./PageHeader";
 
 interface Transaction {
   type: "income" | "expense";
@@ -120,30 +121,22 @@ export default function TransactionHistory() {
   };
 
   return (
-    <Container size="md" py="xl">
-      <Stack gap="xl">
-        <Grid>
-          <Grid.Col span={12}>
-            <FinancialCard
-              title="Current Balance"
-              amount={`$${balance.toFixed(2)}`}
-              description="Current balance"
-              color="blue.7"
-              isLarge
-            />
-          </Grid.Col>
-        </Grid>
+    <Container size="sm" mt="xl">
+      <Stack>
+        <PageHeader title="Transaction History" />
 
-        <Group justify="flex-end">
-          <Button variant="light" onClick={() => navigate("/")}>
-            Back to Dashboard
-          </Button>
-        </Group>
+        <FinancialCard
+          title="Current Balance"
+          amount={`$${balance.toFixed(2)}`}
+          description="Current balance"
+          color="blue.7"
+          isLarge
+        />
 
-        <Group justify="center" gap="md">
+        <Group justify="center">
           <Button
             variant="light"
-            color="green"
+            color="teal"
             onClick={() => navigate("/income")}
           >
             Add Income
@@ -157,24 +150,15 @@ export default function TransactionHistory() {
           </Button>
         </Group>
 
-        <Title order={2}>Transaction History</Title>
-
-        <Stack gap="md">
-          {transactions.map((transaction, i) => (
-            <TransactionItem
-              key={i}
-              description={transaction.description}
-              amount={transaction.amount}
-              date={transaction.date}
-              index={transaction.index}
-              type={transaction.type}
-              onDelete={(index) => handleDelete(transaction.type, index)}
-              onEdit={(index, newDescription) =>
-                handleEdit(transaction.type, index, newDescription)
-              }
-            />
-          ))}
-        </Stack>
+        {transactions.map((transaction, index) => (
+          <TransactionItem
+            key={index}
+            {...transaction}
+            index={index}
+            onDelete={() => handleDelete(transaction.type, index)}
+            onEdit={handleEdit}
+          />
+        ))}
       </Stack>
     </Container>
   );
