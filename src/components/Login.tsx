@@ -11,12 +11,11 @@ import {
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [error, setError] = useState("");
-  const navigate = useNavigate();
   const { login } = useAuth();
 
   const form = useForm({
@@ -34,9 +33,13 @@ export default function Login() {
   const handleSubmit = form.onSubmit(async (values) => {
     try {
       await login(values.email, values.password);
-      navigate("/");
+      localStorage.setItem("userEmail", values.email);
     } catch (error) {
-      setError(error instanceof Error ? error.message : "Invalid credentials");
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("Login failed. Please try again.");
+      }
     }
   });
 

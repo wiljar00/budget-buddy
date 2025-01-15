@@ -152,7 +152,7 @@ app.get("/api/income", authenticateToken, async (req, res) => {
       .toArray();
     res.json(income);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching income" });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -166,7 +166,7 @@ app.post("/api/income", authenticateToken, async (req, res) => {
     await db.collection("income").insertMany(entriesWithUser);
     res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ error: "Error saving income" });
+    res.status(500).json({ error: error.message });
   }
 });
 

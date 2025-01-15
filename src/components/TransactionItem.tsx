@@ -52,6 +52,8 @@ export default function TransactionItem({
     setEditingDescription(description);
   };
 
+  const formattedDate = new Date(date).toLocaleDateString();
+
   return (
     <Paper
       shadow="sm"
@@ -108,7 +110,7 @@ export default function TransactionItem({
         </Group>
         <Group justify="space-between">
           <Text c="dimmed" size="xs">
-            {date.toLocaleDateString()}
+            {formattedDate}
           </Text>
           <Text
             fw={500}
