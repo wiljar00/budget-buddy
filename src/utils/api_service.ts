@@ -1,4 +1,3 @@
-import { connectToMongoDB } from './mongodb_connector';
 import { IncomeEntry, ExpenseEntry } from './storage';
 
 export async function saveIncomeToMongo(entries: IncomeEntry[]) {

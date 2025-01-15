@@ -1,21 +1,29 @@
-import { Button, Container, Paper, Text, Stack } from "@mantine/core";
+import { Button, Container, Paper, Text, Stack, Code } from "@mantine/core";
 import { useState } from "react";
 import { testMongoConnection } from "../utils/api_service";
 
 export default function MongoDBTest() {
   const [testResult, setTestResult] = useState<string>("");
+  const [errorDetails, setErrorDetails] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleTest = async () => {
     setIsLoading(true);
+    setErrorDetails("");
     try {
-      const result = await testMongoConnection();
+      const success = await testMongoConnection();
       setTestResult(
-        result ? "Connection successful! ✅" : "Connection failed! ❌"
+        success ? "Connection successful! ✅" : "Connection failed! ❌"
       );
+      if (!success) {
+        setErrorDetails("Connection test returned false");
+      }
     } catch (error) {
-      setTestResult(
-        `Error: ${error instanceof Error ? error.message : "Unknown error"}`
+      setTestResult("Connection failed! ❌");
+      setErrorDetails(
+        error instanceof Error
+          ? `${error.name}: ${error.message}`
+          : "Unknown error occurred"
       );
     } finally {
       setIsLoading(false);
@@ -39,6 +47,14 @@ export default function MongoDBTest() {
             >
               {testResult}
             </Text>
+          )}
+          {errorDetails && (
+            <Paper withBorder p="xs" bg="red.1">
+              <Text size="sm" fw={500} mb={5}>
+                Error Details:
+              </Text>
+              <Code block>{errorDetails}</Code>
+            </Paper>
           )}
         </Stack>
       </Paper>
