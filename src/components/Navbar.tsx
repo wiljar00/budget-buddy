@@ -4,13 +4,11 @@ import {
   Title,
   ActionIcon,
   useMantineColorScheme,
-  Drawer,
-  Stack,
-  Button,
 } from "@mantine/core";
 import { IconUser, IconSun, IconMoon, IconMenu2 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import NavigationDrawer from "./NavigationDrawer";
 
 export default function Navbar() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
@@ -20,57 +18,10 @@ export default function Navbar() {
 
   return (
     <>
-      <Drawer
+      <NavigationDrawer
         opened={drawerOpened}
         onClose={() => setDrawerOpened(false)}
-        title="Navigation"
-      >
-        <Stack gap="md">
-          <Button
-            variant="light"
-            onClick={() => {
-              navigate("/");
-              setDrawerOpened(false);
-            }}
-            fullWidth
-          >
-            Dashboard
-          </Button>
-          <Button
-            variant="light"
-            color="green"
-            onClick={() => {
-              navigate("/income");
-              setDrawerOpened(false);
-            }}
-            fullWidth
-          >
-            Income
-          </Button>
-          <Button
-            variant="light"
-            color="red"
-            onClick={() => {
-              navigate("/expenses");
-              setDrawerOpened(false);
-            }}
-            fullWidth
-          >
-            Expenses
-          </Button>
-          <Button
-            variant="light"
-            color="blue"
-            onClick={() => {
-              navigate("/transactions");
-              setDrawerOpened(false);
-            }}
-            fullWidth
-          >
-            Transactions
-          </Button>
-        </Stack>
-      </Drawer>
+      />
 
       <AppShell.Header
         withBorder
