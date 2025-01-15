@@ -1,13 +1,18 @@
 import {
-  Paper,
   TextInput,
   NumberInput,
   Stack,
   Button,
   Group,
+  Container,
+  Paper,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { DateInput } from "@mantine/dates";
+import FinancialCard from "./FinancialCard";
+import { useState, useEffect } from "react";
+import { loadExpenses } from "../utils/storage";
+import PageHeader from "./PageHeader";
 
 interface ExpenseFormProps {
   onSubmit: (values: {
@@ -36,48 +41,72 @@ export default function ExpenseForm({ onSubmit }: ExpenseFormProps) {
     form.reset();
   });
 
+  const [totalExpenses, setTotalExpenses] = useState(0);
+
+  useEffect(() => {
+    const loadTotal = async () => {
+      const expenseData = await loadExpenses();
+      setTotalExpenses(expenseData.reduce((sum, exp) => sum + exp.amount, 0));
+    };
+    loadTotal();
+  }, []);
+
   return (
-    <Paper shadow="sm" radius="md" p="xl" withBorder>
-      <form onSubmit={handleSubmit}>
-        <Stack gap="md">
-          <TextInput
-            label="Description"
-            placeholder="Rent, Utilities, etc."
-            required
-            {...form.getInputProps("description")}
-          />
+    <Container size="md" mt="xl">
+      <Stack>
+        <PageHeader title="Expense Entries" />
 
-          <NumberInput
-            label="Amount"
-            placeholder="0.00"
-            required
-            min={0}
-            prefix="$"
-            decimalScale={2}
-            fixedDecimalScale
-            {...form.getInputProps("amount")}
-          />
+        <FinancialCard
+          title="Total Expenses"
+          amount={`$${totalExpenses.toFixed(2)}`}
+          description="Total expenses this month"
+          color="red.7"
+          isLarge
+        />
 
-          <DateInput
-            label="Date"
-            placeholder="Pick a date"
-            required
-            valueFormat="MMMM D, YYYY"
-            defaultValue={new Date()}
-            hideOutsideDates
-            {...form.getInputProps("date")}
-            styles={{
-              calendarHeader: { display: "none" },
-            }}
-          />
+        <Paper p="md" withBorder>
+          <form onSubmit={handleSubmit}>
+            <Stack gap="md">
+              <TextInput
+                label="Description"
+                placeholder="Rent, Utilities, etc."
+                required
+                {...form.getInputProps("description")}
+              />
 
-          <Group justify="flex-end" mt="md">
-            <Button type="submit" color="red">
-              Add Expense
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </Paper>
+              <NumberInput
+                label="Amount"
+                placeholder="0.00"
+                required
+                min={0}
+                prefix="$"
+                decimalScale={2}
+                fixedDecimalScale
+                {...form.getInputProps("amount")}
+              />
+
+              <DateInput
+                label="Date"
+                placeholder="Pick a date"
+                required
+                valueFormat="MMMM D, YYYY"
+                defaultValue={new Date()}
+                hideOutsideDates
+                {...form.getInputProps("date")}
+                styles={{
+                  calendarHeader: { display: "none" },
+                }}
+              />
+
+              <Group justify="flex-end" mt="md">
+                <Button type="submit" color="red">
+                  Add Expense
+                </Button>
+              </Group>
+            </Stack>
+          </form>
+        </Paper>
+      </Stack>
+    </Container>
   );
 }
