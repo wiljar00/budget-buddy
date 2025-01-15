@@ -36,7 +36,13 @@ export default function Register() {
   const handleSubmit = form.onSubmit(async (values) => {
     try {
       await register(values.email, values.password);
-      navigate("/login");
+      setError(""); // Clear any previous errors
+      const successMessage =
+        "Account created successfully! Redirecting to login...";
+      setError(successMessage);
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
     } catch (error) {
       if (error instanceof Error) {
         setError(error.message);
@@ -77,7 +83,10 @@ export default function Register() {
             />
 
             {error && (
-              <Text c="red" size="sm">
+              <Text
+                c={error.includes("successfully") ? "green" : "red"}
+                size="sm"
+              >
                 {error}
               </Text>
             )}
