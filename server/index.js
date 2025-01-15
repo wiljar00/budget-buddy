@@ -12,9 +12,17 @@ const client = new MongoClient(uri);
 
 // Test connection
 app.get("/api/test-connection", async (req, res) => {
+  console.log("Attempting MongoDB connection...");
   try {
+    console.log("URI:", uri.replace(/:[^:@]+@/, ":****@")); // Hide password in logs
     await client.connect();
-    await client.db("budget-buddy").command({ ping: 1 });
+    console.log("Connected to MongoDB");
+
+    const db = client.db("budget-buddy");
+    console.log("Attempting ping...");
+    await db.command({ ping: 1 });
+    console.log("Ping successful");
+
     res.json({
       success: true,
       timestamp: new Date().toISOString(),
@@ -22,6 +30,13 @@ app.get("/api/test-connection", async (req, res) => {
       collections: ["income", "expenses"],
     });
   } catch (error) {
+    console.error("MongoDB connection error:", {
+      name: error.name,
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+    });
+
     res.status(500).json({
       success: false,
       error: error.message,

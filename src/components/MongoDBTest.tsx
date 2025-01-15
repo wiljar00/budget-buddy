@@ -1,6 +1,5 @@
 import { Button, Container, Paper, Text, Stack, Code } from "@mantine/core";
 import { useState } from "react";
-import { testMongoConnection } from "../utils/api_service";
 
 export default function MongoDBTest() {
   const [testResult, setTestResult] = useState<string>("");
@@ -22,13 +21,12 @@ export default function MongoDBTest() {
     setRequestDetails(JSON.stringify(requestInfo, null, 2));
 
     try {
-      const success = await testMongoConnection();
+      const response = await fetch("http://localhost:3000/api/test-connection");
+      const data = await response.json();
       setTestResult(
-        success ? "Connection successful! ✅" : "Connection failed! ❌"
+        data.success ? "Connection successful! ✅" : "Connection failed! ❌"
       );
-      if (!success) {
-        setErrorDetails("Connection test returned false");
-      }
+      setErrorDetails(JSON.stringify(data, null, 2));
     } catch (error) {
       setTestResult("Connection failed! ❌");
       setErrorDetails(
