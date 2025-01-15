@@ -1,4 +1,13 @@
-import { Grid, Container, Accordion, Text } from "@mantine/core";
+import {
+  Grid,
+  Container,
+  Accordion,
+  Text,
+  Stack,
+  Paper,
+  Group,
+  Button,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import FinancialCard from "./FinancialCard";
 import { loadIncome } from "../utils/storage";
@@ -95,46 +104,51 @@ export default function FinancialSummary() {
         </Grid.Col>
       </Grid>
 
-      <Accordion mt="xl">
+      <Accordion mt="xl" variant="separated">
         <Accordion.Item value="recent-transactions">
-          <Accordion.Control>Recent Transactions</Accordion.Control>
+          <Accordion.Control>
+            <Text fw={600} size="lg">
+              Recent Transactions
+            </Text>
+          </Accordion.Control>
           <Accordion.Panel>
-            {transactions.slice(0, 5).map((transaction, i) => (
-              <Grid
-                key={i}
-                p="xs"
-                bg={transaction.type === "income" ? "green.0" : "red.0"}
-              >
-                <Grid.Col span={6}>
-                  <Text fw={500}>{transaction.description}</Text>
-                </Grid.Col>
-                <Grid.Col span={3}>
-                  <Text c="dimmed">
-                    {transaction.date.toLocaleDateString()}
-                  </Text>
-                </Grid.Col>
-                <Grid.Col span={3}>
-                  <Text
-                    fw={500}
-                    c={transaction.type === "income" ? "green" : "red"}
-                    ta="right"
-                  >
-                    ${transaction.amount.toFixed(2)}
-                  </Text>
-                </Grid.Col>
-              </Grid>
-            ))}
-            {transactions.length > 5 && (
-              <Text
-                mt="md"
-                ta="center"
-                c="blue"
-                style={{ cursor: "pointer" }}
-                onClick={() => navigate("/transactions")}
-              >
-                View all transactions →
-              </Text>
-            )}
+            <Stack gap="sm">
+              {transactions.slice(0, 5).map((transaction, i) => (
+                <Paper
+                  key={i}
+                  p="md"
+                  radius="sm"
+                  withBorder
+                  bg={transaction.type === "income" ? "green.0" : "red.0"}
+                >
+                  <Group justify="space-between" wrap="nowrap">
+                    <Text fw={500}>{transaction.description}</Text>
+                    <Group gap="lg" wrap="nowrap">
+                      <Text size="sm" c="dimmed">
+                        {transaction.date.toLocaleDateString()}
+                      </Text>
+                      <Text
+                        fw={500}
+                        c={transaction.type === "income" ? "green.7" : "red.7"}
+                      >
+                        ${transaction.amount.toFixed(2)}
+                      </Text>
+                    </Group>
+                  </Group>
+                </Paper>
+              ))}
+              {transactions.length > 5 && (
+                <Button
+                  variant="light"
+                  color="blue"
+                  fullWidth
+                  onClick={() => navigate("/transactions")}
+                  mt="sm"
+                >
+                  View all transactions
+                </Button>
+              )}
+            </Stack>
           </Accordion.Panel>
         </Accordion.Item>
       </Accordion>
