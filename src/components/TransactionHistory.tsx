@@ -36,23 +36,29 @@ export default function TransactionHistory() {
 
   useEffect(() => {
     const loadTransactions = async () => {
-      const incomeEntries = await loadIncome();
-      const expenseEntries = await loadExpenses();
+      try {
+        const incomeData = (await loadIncome()) || [];
+        const expensesData = (await loadExpenses()) || [];
 
-      const allTransactions = [
-        ...incomeEntries.map((entry, index) => ({
-          type: "income" as const,
-          ...entry,
-          index,
-        })),
-        ...expenseEntries.map((entry, index) => ({
-          type: "expense" as const,
-          ...entry,
-          index,
-        })),
-      ].sort((a, b) => b.date.getTime() - a.date.getTime());
+        const allTransactions = [
+          ...incomeData.map((i, idx) => ({
+            ...i,
+            date: new Date(i.date),
+            type: "income" as const,
+            index: idx,
+          })),
+          ...expensesData.map((e, idx) => ({
+            ...e,
+            date: new Date(e.date),
+            type: "expense" as const,
+            index: idx,
+          })),
+        ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-      setTransactions(allTransactions);
+        setTransactions(allTransactions);
+      } catch (error) {
+        console.error("Error loading transactions:", error);
+      }
     };
 
     loadTransactions();
@@ -81,7 +87,7 @@ export default function TransactionHistory() {
         ...entry,
         index: idx,
       })),
-    ].sort((a, b) => b.date.getTime() - a.date.getTime());
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     setTransactions(updatedTransactions);
   };
@@ -115,7 +121,7 @@ export default function TransactionHistory() {
         ...entry,
         index: idx,
       })),
-    ].sort((a, b) => b.date.getTime() - a.date.getTime());
+    ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     setTransactions(updatedTransactions);
   };
