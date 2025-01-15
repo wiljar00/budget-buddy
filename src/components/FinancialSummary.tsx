@@ -1,157 +1,136 @@
-import {
-  Grid,
-  Container,
-  Accordion,
-  Text,
-  Stack,
-  Paper,
-  Group,
-  Button,
-} from "@mantine/core";
-import { useEffect, useState } from "react";
-import FinancialCard from "./FinancialCard";
-import { loadIncome } from "../utils/storage";
+import { Container, Grid, Stack, Button, Accordion, Text } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { loadExpenses } from "../utils/storage";
+import { useEffect, useState } from "react";
+import { loadIncome, loadExpenses } from "../utils/storage";
+import FinancialCard from "./FinancialCard";
+import TransactionItem from "./TransactionItem";
 
 interface Transaction {
-  type: "income" | "expense";
   description: string;
   amount: number;
   date: Date;
-  index: number;
+  type: "income" | "expense";
 }
 
 export default function FinancialSummary() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const navigate = useNavigate();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0);
 
   useEffect(() => {
     const loadTransactions = async () => {
-      const incomeEntries = await loadIncome();
-      const expenseEntries = await loadExpenses();
+      try {
+        const incomeData = await loadIncome();
+        const expensesData = await loadExpenses();
 
-      const allTransactions = [
-        ...incomeEntries.map((entry, index) => ({
-          type: "income" as const,
-          ...entry,
-          index,
-        })),
-        ...expenseEntries.map((entry, index) => ({
-          type: "expense" as const,
-          ...entry,
-          index,
-        })),
-      ].sort((a, b) => b.date.getTime() - a.date.getTime());
+        const allTransactions = [
+          ...incomeData.map((inc) => ({
+            ...inc,
+            date: new Date(inc.date),
+            type: "income" as const,
+          })),
+          ...expensesData.map((exp) => ({
+            ...exp,
+            date: new Date(exp.date),
+            type: "expense" as const,
+          })),
+        ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
-      setTransactions(allTransactions);
+        setTransactions(allTransactions);
+        setTotalIncome(incomeData.reduce((sum, inc) => sum + inc.amount, 0));
+        setTotalExpenses(
+          expensesData.reduce((sum, exp) => sum + exp.amount, 0)
+        );
+      } catch (error) {
+        console.error("Error loading transactions:", error);
+      }
     };
 
     loadTransactions();
   }, []);
 
-  const totalIncome = transactions
-    .filter((t) => t.type === "income")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = transactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
   const balance = totalIncome - totalExpenses;
 
   return (
-    <Container size="md">
-      <Grid gutter="md">
-        <Grid.Col span={12}>
-          <div
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/transactions")}
-          >
-            <FinancialCard
-              title="Current Balance"
-              amount={`$${balance.toFixed(2)}`}
-              description="Current balance"
-              color="blue.7"
-              isLarge
-            />
-          </div>
-        </Grid.Col>
+    <Container size="sm" mt="xl">
+      <Stack>
+        <Grid>
+          <Grid.Col span={12}>
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/transactions")}
+            >
+              <FinancialCard
+                title="Current Balance"
+                amount={`$${balance.toFixed(2)}`}
+                description="Current balance"
+                color="blue.7"
+                isLarge
+              />
+            </div>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/expenses")}
+            >
+              <FinancialCard
+                title="Expenses"
+                amount={`$${totalExpenses.toFixed(2)}`}
+                description="Total expenses this month"
+                color="red.7"
+              />
+            </div>
+          </Grid.Col>
+          <Grid.Col span={{ base: 12, sm: 6 }}>
+            <div
+              style={{ cursor: "pointer" }}
+              onClick={() => navigate("/income")}
+            >
+              <FinancialCard
+                title="Income"
+                amount={`$${totalIncome.toFixed(2)}`}
+                description="Total income this month"
+                color="teal.7"
+              />
+            </div>
+          </Grid.Col>
+        </Grid>
 
-        <Grid.Col span={{ base: 12, md: 6 }}>
-          <div
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/expenses")}
-          >
-            <FinancialCard
-              title="Expenses"
-              amount={`$${totalExpenses.toFixed(2)}`}
-              description="Total expenses this month"
-              color="red.7"
-            />
-          </div>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, md: 6 }}>
-          <div
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/income")}
-          >
-            <FinancialCard
-              title="Income"
-              amount={`$${totalIncome.toFixed(2)}`}
-              description="Total income this month"
-              color="green.7"
-            />
-          </div>
-        </Grid.Col>
-      </Grid>
-
-      <Accordion mt="xl" variant="separated">
-        <Accordion.Item value="recent-transactions">
-          <Accordion.Control>
-            <Text fw={600} size="lg">
-              Recent Transactions
-            </Text>
-          </Accordion.Control>
-          <Accordion.Panel>
-            <Stack gap="sm">
-              {transactions.slice(0, 5).map((transaction, i) => (
-                <Paper
-                  key={i}
-                  p="md"
-                  radius="sm"
-                  withBorder
-                  bg={transaction.type === "income" ? "green.0" : "red.0"}
-                >
-                  <Group justify="space-between" wrap="nowrap">
-                    <Text fw={500}>{transaction.description}</Text>
-                    <Group gap="lg" wrap="nowrap">
-                      <Text size="sm" c="dimmed">
-                        {transaction.date.toLocaleDateString()}
-                      </Text>
-                      <Text
-                        fw={500}
-                        c={transaction.type === "income" ? "green.7" : "red.7"}
-                      >
-                        ${transaction.amount.toFixed(2)}
-                      </Text>
-                    </Group>
-                  </Group>
-                </Paper>
-              ))}
-              {transactions.length > 5 && (
-                <Button
-                  variant="light"
-                  color="blue"
-                  fullWidth
-                  onClick={() => navigate("/transactions")}
-                  mt="sm"
-                >
-                  View all transactions
-                </Button>
-              )}
-            </Stack>
-          </Accordion.Panel>
-        </Accordion.Item>
-      </Accordion>
+        <Accordion variant="separated">
+          <Accordion.Item value="recent">
+            <Accordion.Control>
+              <Text fw={500}>Recent Transactions</Text>
+            </Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                {transactions.slice(0, 5).map((transaction, index) => (
+                  <TransactionItem
+                    key={index}
+                    description={transaction.description}
+                    amount={transaction.amount}
+                    date={transaction.date}
+                    type={transaction.type}
+                    index={index}
+                    onDelete={() => {}} // No-op since we don't want deletion here
+                    onEdit={() => {}} // No-op since we don't want editing here
+                  />
+                ))}
+                {transactions.length > 5 && (
+                  <Button
+                    variant="light"
+                    color="blue"
+                    onClick={() => navigate("/transactions")}
+                  >
+                    View all transactions
+                  </Button>
+                )}
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
+      </Stack>
     </Container>
   );
 }

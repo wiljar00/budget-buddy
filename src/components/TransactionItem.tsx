@@ -5,6 +5,7 @@ import {
   Text,
   ActionIcon,
   TextInput,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
@@ -28,8 +29,16 @@ export default function TransactionItem({
   onDelete,
   onEdit,
 }: TransactionItemProps) {
+  const { colorScheme } = useMantineColorScheme();
   const [isEditing, setIsEditing] = useState(false);
   const [editingDescription, setEditingDescription] = useState(description);
+
+  const getBgColor = () => {
+    if (colorScheme === "dark") {
+      return type === "income" ? "dark.4" : "dark.3";
+    }
+    return type === "income" ? "teal.1" : "red.1";
+  };
 
   const handleEdit = (newDescription: string) => {
     if (newDescription.trim()) {
@@ -43,11 +52,17 @@ export default function TransactionItem({
     <Paper
       shadow="sm"
       radius="md"
-      p="md"
+      p="xs"
       withBorder
-      bg={type === "income" ? "green.0" : "red.0"}
+      bg={getBgColor()}
+      style={{
+        backgroundColor: `var(--mantine-color-${getBgColor().replace(
+          ".",
+          "-"
+        )})`,
+      }}
     >
-      <Stack gap="xs">
+      <Stack gap="0">
         <Group justify="space-between">
           {isEditing ? (
             <TextInput
@@ -63,11 +78,13 @@ export default function TransactionItem({
               }}
               onBlur={() => handleEdit(editingDescription)}
               autoFocus
+              size="xs"
             />
           ) : (
             <Text
               fw={500}
               style={{ cursor: "pointer" }}
+              size="sm"
               onClick={() => {
                 setIsEditing(true);
                 setEditingDescription(description);
@@ -80,13 +97,20 @@ export default function TransactionItem({
             color="red"
             variant="subtle"
             onClick={() => onDelete(index)}
+            size="sm"
           >
-            <IconTrash size={16} />
+            <IconTrash size={14} />
           </ActionIcon>
         </Group>
         <Group justify="space-between">
-          <Text c="dimmed">{date.toLocaleDateString()}</Text>
-          <Text fw={500} c={type === "income" ? "green" : "red"}>
+          <Text c="dimmed" size="xs">
+            {date.toLocaleDateString()}
+          </Text>
+          <Text
+            fw={500}
+            c={type === "income" ? "teal.4" : "red.4"}
+            style={{ fontSize: "0.9rem" }}
+          >
             ${amount.toFixed(2)}
           </Text>
         </Group>
