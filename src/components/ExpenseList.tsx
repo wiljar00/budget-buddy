@@ -25,7 +25,11 @@ export default function ExpenseList() {
   const handleDelete = async (_type: "income" | "expense", index: number) => {
     await deleteExpense(index, entries);
     const updatedEntries = await loadExpenses();
-    setEntries(updatedEntries);
+    setEntries(
+      updatedEntries.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
+    );
   };
 
   const handleEdit = async (

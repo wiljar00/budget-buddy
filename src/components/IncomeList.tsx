@@ -33,7 +33,11 @@ export default function IncomeList() {
   const handleDelete = async (_type: "income" | "expense", index: number) => {
     await deleteIncome(index, entries);
     const updatedEntries = await loadIncome();
-    setEntries(updatedEntries);
+    setEntries(
+      updatedEntries.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      )
+    );
   };
 
   const handleEdit = async (
