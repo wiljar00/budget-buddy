@@ -1,5 +1,4 @@
-import { Container, Title, Stack, Group, Button } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { Container, Stack } from "@mantine/core";
 import IncomeForm from "./IncomeForm";
 import { useState, useEffect } from "react";
 import {
@@ -12,7 +11,6 @@ import TransactionItem from "./TransactionItem";
 
 export default function IncomeList() {
   const [entries, setEntries] = useState<IncomeEntry[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     loadIncome().then(setEntries);
@@ -32,12 +30,17 @@ export default function IncomeList() {
     }
   };
 
-  const handleDelete = async (index: number) => {
-    const newEntries = await deleteIncome(index, entries);
-    setEntries(newEntries);
+  const handleDelete = async (_type: "income" | "expense", index: number) => {
+    await deleteIncome(index, entries);
+    const updatedEntries = await loadIncome();
+    setEntries(updatedEntries);
   };
 
-  const handleEdit = async (index: number, newDescription: string) => {
+  const handleEdit = async (
+    _type: "income" | "expense",
+    index: number,
+    newDescription: string
+  ) => {
     const entries = await loadIncome();
     entries[index].description = newDescription;
     await saveIncome(entries);
@@ -47,12 +50,6 @@ export default function IncomeList() {
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
-        <Group justify="space-between" align="center">
-          <Title order={2}>Income Entries</Title>
-          <Button variant="light" onClick={() => navigate("/")}>
-            Back to Dashboard
-          </Button>
-        </Group>
         <IncomeForm onSubmit={handleAddIncome} />
         <Stack gap="md">
           {entries.map((entry, index) => (
@@ -63,8 +60,14 @@ export default function IncomeList() {
               date={entry.date}
               index={index}
               type="income"
-              onDelete={handleDelete}
-              onEdit={handleEdit}
+              onDelete={async (type: "income" | "expense", idx: number) =>
+                handleDelete(type, idx)
+              }
+              onEdit={async (
+                type: "income" | "expense",
+                idx: number,
+                desc: string
+              ) => handleEdit(type, idx, desc)}
             />
           ))}
         </Stack>

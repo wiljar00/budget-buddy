@@ -16,11 +16,11 @@ interface TransactionItemProps {
   date: Date;
   index: number;
   type: "income" | "expense";
-  onDelete: (index: number) => void;
+  onDelete: (type: "income" | "expense", index: number) => void;
   onEdit: (
     type: "income" | "expense",
     index: number,
-    newDescription: string
+    description: string
   ) => void;
 }
 
@@ -100,7 +100,7 @@ export default function TransactionItem({
           <ActionIcon
             color="red"
             variant="subtle"
-            onClick={() => onDelete(index)}
+            onClick={() => onDelete(type, index)}
             size="sm"
           >
             <IconTrash size={14} />

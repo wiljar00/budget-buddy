@@ -1,5 +1,4 @@
-import { Container, Title, Stack, Group, Button } from "@mantine/core";
-import { useNavigate } from "react-router-dom";
+import { Container, Stack } from "@mantine/core";
 import ExpenseForm from "./ExpenseForm";
 import { useState, useEffect } from "react";
 import {
@@ -12,7 +11,6 @@ import TransactionItem from "./TransactionItem";
 
 export default function ExpenseList() {
   const [entries, setEntries] = useState<ExpenseEntry[]>([]);
-  const navigate = useNavigate();
 
   useEffect(() => {
     loadExpenses().then(setEntries);
@@ -24,12 +22,17 @@ export default function ExpenseList() {
     await saveExpenses(newEntries);
   };
 
-  const handleDelete = async (index: number) => {
-    const newEntries = await deleteExpense(index, entries);
-    setEntries(newEntries);
+  const handleDelete = async (_type: "income" | "expense", index: number) => {
+    await deleteExpense(index, entries);
+    const updatedEntries = await loadExpenses();
+    setEntries(updatedEntries);
   };
 
-  const handleEdit = async (index: number, newDescription: string) => {
+  const handleEdit = async (
+    _type: "income" | "expense",
+    index: number,
+    newDescription: string
+  ) => {
     const entries = await loadExpenses();
     entries[index].description = newDescription;
     await saveExpenses(entries);
@@ -39,12 +42,6 @@ export default function ExpenseList() {
   return (
     <Container size="md" py="xl">
       <Stack gap="xl">
-        <Group justify="space-between" align="center">
-          <Title order={2}>Expense Entries</Title>
-          <Button variant="light" onClick={() => navigate("/")}>
-            Back to Dashboard
-          </Button>
-        </Group>
         <ExpenseForm onSubmit={handleAddExpense} />
         <Stack gap="md">
           {entries.map((entry, index) => (
@@ -55,8 +52,8 @@ export default function ExpenseList() {
               date={entry.date}
               index={index}
               type="expense"
-              onDelete={handleDelete}
-              onEdit={handleEdit}
+              onDelete={async (type, idx) => handleDelete(type, idx)}
+              onEdit={async (type, idx, desc) => handleEdit(type, idx, desc)}
             />
           ))}
         </Stack>
