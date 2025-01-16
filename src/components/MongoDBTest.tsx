@@ -9,6 +9,8 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 export default function MongoDBTest() {
   const [testResult, setTestResult] = useState<string>("");
   const [errorDetails, setErrorDetails] = useState<string>("");
@@ -19,7 +21,7 @@ export default function MongoDBTest() {
     setIsLoading(true);
     setErrorDetails("");
     const requestInfo = {
-      url: "http://localhost:3000/api/test-connection",
+      url: `${API_BASE_URL}/test-connection`,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +31,7 @@ export default function MongoDBTest() {
     setRequestDetails(JSON.stringify(requestInfo, null, 2));
 
     try {
-      const response = await fetch("http://localhost:3000/api/test-connection");
+      const response = await fetch(`${API_BASE_URL}/test-connection`);
       const data = await response.json();
       setTestResult(
         data.success ? "Connection successful! ✅" : "Connection failed! ❌"
@@ -65,7 +67,7 @@ export default function MongoDBTest() {
 
                 // Log request details
                 const requestInfo = {
-                  url: "http://localhost:3000/api/test-data",
+                  url: `${API_BASE_URL}/test-data`,
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   timestamp: new Date().toISOString(),
@@ -73,13 +75,10 @@ export default function MongoDBTest() {
                 setRequestDetails(JSON.stringify(requestInfo, null, 2));
 
                 try {
-                  const response = await fetch(
-                    "http://localhost:3000/api/test-data",
-                    {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                    }
-                  );
+                  const response = await fetch(`${API_BASE_URL}/test-data`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                  });
                   const data = await response.json();
                   setTestResult(
                     response.ok

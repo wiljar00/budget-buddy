@@ -1,6 +1,6 @@
 import { IncomeEntry, ExpenseEntry } from './storage';
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 export async function login(email: string, password: string) {
   const response = await fetch(`${API_BASE_URL}/login`, {
@@ -91,7 +91,7 @@ export async function loadExpensesFromMongo() {
 }
 
 export async function testMongoConnection() {
-  const response = await fetch('http://localhost:3000/api/test-connection');
+  const response = await fetch(`${API_BASE_URL}/test-connection`);
   const data = await response.json();
   if (!data.success) {
     throw new Error(`${data.name}: ${data.error}\n${data.stack}`);
