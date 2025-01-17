@@ -9,10 +9,15 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
+// Ensure API_BASE_URL ends with /api
+const API_BASE_URL = import.meta.env.VITE_API_URL?.endsWith("/api")
+  ? import.meta.env.VITE_API_URL
+  : `${import.meta.env.VITE_API_URL}/api`;
 
 if (!API_BASE_URL) {
   console.error("VITE_API_URL environment variable is not set");
+} else {
+  console.log("Using API URL:", API_BASE_URL);
 }
 
 export default function MongoDBTest() {
@@ -32,8 +37,9 @@ export default function MongoDBTest() {
 
     setIsLoading(true);
     setErrorDetails("");
+    const testUrl = `${API_BASE_URL}/test-connection`;
     const requestInfo = {
-      url: `${API_BASE_URL}/test-connection`,
+      url: testUrl,
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -43,9 +49,15 @@ export default function MongoDBTest() {
     setRequestDetails(JSON.stringify(requestInfo, null, 2));
 
     try {
-      const response = await fetch(`${API_BASE_URL}/test-connection`);
+      console.log("Making request to:", testUrl);
+      const response = await fetch(testUrl);
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response
+          .text()
+          .catch(() => "No error details available");
+        throw new Error(
+          `HTTP error! status: ${response.status}\nDetails: ${errorText}`
+        );
       }
       const data = await response.json();
       setTestResult(

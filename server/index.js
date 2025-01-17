@@ -8,7 +8,11 @@ require("dotenv").config();
 const app = express();
 app.use(
   cors({
-    origin: "http://localhost:5173", // Vite's default port
+    origin: [
+      "http://localhost:5173", // Local development
+      "https://budget-buddy-react.vercel.app", // Vercel deployment
+      /\.vercel\.app$/, // Any Vercel preview deployments
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   })
