@@ -11,6 +11,10 @@ import { useState } from "react";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
+if (!API_BASE_URL) {
+  console.error("VITE_API_URL environment variable is not set");
+}
+
 export default function MongoDBTest() {
   const [testResult, setTestResult] = useState<string>("");
   const [errorDetails, setErrorDetails] = useState<string>("");
@@ -18,6 +22,14 @@ export default function MongoDBTest() {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleTest = async () => {
+    if (!API_BASE_URL) {
+      setTestResult("Configuration Error ❌");
+      setErrorDetails(
+        "API URL is not configured. Please check environment variables."
+      );
+      return;
+    }
+
     setIsLoading(true);
     setErrorDetails("");
     const requestInfo = {
@@ -32,6 +44,9 @@ export default function MongoDBTest() {
 
     try {
       const response = await fetch(`${API_BASE_URL}/test-connection`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       setTestResult(
         data.success ? "Connection successful! ✅" : "Connection failed! ❌"
@@ -56,16 +71,33 @@ export default function MongoDBTest() {
           <Text size="xl" fw={500}>
             MongoDB Connection Test
           </Text>
+          {!API_BASE_URL && (
+            <Paper withBorder p="xs" bg="yellow.1">
+              <Text c="yellow.9" fw={500}>
+                ⚠️ API URL not configured
+              </Text>
+              <Text size="sm">
+                The API URL environment variable (VITE_API_URL) is not set.
+              </Text>
+            </Paper>
+          )}
           <Group>
             <Button onClick={handleTest} loading={isLoading} color="blue">
               Test Connection
             </Button>
             <Button
               onClick={async () => {
+                if (!API_BASE_URL) {
+                  setTestResult("Configuration Error ❌");
+                  setErrorDetails(
+                    "API URL is not configured. Please check environment variables."
+                  );
+                  return;
+                }
+
                 setIsLoading(true);
                 setErrorDetails("");
 
-                // Log request details
                 const requestInfo = {
                   url: `${API_BASE_URL}/test-data`,
                   method: "POST",
@@ -79,6 +111,9 @@ export default function MongoDBTest() {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                   });
+                  if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                  }
                   const data = await response.json();
                   setTestResult(
                     response.ok
